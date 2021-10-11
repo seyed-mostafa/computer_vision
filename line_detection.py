@@ -1,16 +1,16 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import cv2
 import imutils
 
-def input_gray_image(path):
-    image = cv2.imread(path)
-    return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+
 
 def canny(image):
-    blur = cv2.GaussianBlur(image, (5, 5), 0)
+    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    blur = cv2.GaussianBlur(gray_image, (5, 5), 0)
     canny = cv2.Canny(blur, 50, 150)
-    return imutils.auto_canny(blur, sigma=0.33)
+
+    return imutils.auto_canny(blur, sigma=0.33)  # better way to canny images
 
 def region(image):
    height = image.shape[0]
@@ -50,15 +50,3 @@ def average_slope_intercept(image,lines):
     right_line = make_coordinates(image,right_fit_average)
     left_line = make_coordinates(image,left_fit_average)
     return np.array([left_line,right_line])
-
-
-src = input_gray_image("images/test_image.jpg")
-image = cv2.imread("images/test_image.jpg")
-lines = cv2.HoughLinesP(region(canny(src)), 2, np.pi/180,100,np.array([]),40,5)
-averaged_lines = average_slope_intercept(src, lines)
-line_image = display_line(image,averaged_lines)
-combo_image = cv2.addWeighted(line_image,1,image,0.8,1)
-
-
-cv2.imshow('combo image',combo_image)
-cv2.waitKey(0)
