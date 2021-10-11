@@ -1,4 +1,3 @@
-
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
@@ -14,14 +13,13 @@ def canny(image):
 
 def region(image):
    height = image.shape[0]
-   triangle = np.array([
-       [(200,height),(1100,height),(550,250)]
-   ])
+   triangle = np.array([[(200,height),(1100,height),(550,250)]])
    mask = np.zeros_like(image)
-   return cv2.fillPoly(mask,triangle,255)
+   cv2.fillPoly(mask,triangle,255)
+   return cv2.bitwise_and(image,mask)
 
 
 src = input_gray_image("images/test_image.jpg")
-cv2.imshow("region",region(src)+region(src))
+cv2.imshow("region",region(canny(src)))
 cv2.waitKey()
 
