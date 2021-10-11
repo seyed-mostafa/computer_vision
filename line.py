@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
+import imutils
 
 def input_gray_image(path):
     image = cv2.imread(path)
@@ -18,8 +19,14 @@ def region(image):
    cv2.fillPoly(mask,triangle,255)
    return cv2.bitwise_and(image,mask)
 
+def display_line(image):
+    return 2
+
 
 src = input_gray_image("images/test_image.jpg")
+#lines = cv2.HoughLinesP()
+cv2.imshow("region",imutils.auto_canny(src,sigma=0.33))
+cv2.waitKey()
 cv2.imshow("region",region(canny(src)))
 cv2.waitKey()
 
