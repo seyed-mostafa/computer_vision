@@ -18,7 +18,3 @@ for image_index in range(240):
     if selected_label == 'night':
         plt.imshow(selected_image)
         plt.show()
-
-
-
-

@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import line_detection
 
+
 def process_frame(image):
     lines = cv2.HoughLinesP(line_detection.region(line_detection.canny(image)), 10, np.pi / 180, 150, np.array([]), 20, 5)
     averaged_lines = line_detection.average_slope_intercept(image, lines)
@@ -13,10 +14,12 @@ def process_frame(image):
 video = cv2.VideoCapture('videos/test2.mp4')
 while video.isOpened():
     ret, frame = video.read()
-    processed_frame = process_frame(frame)
-    cv2.imshow('video',processed_frame)
-    if cv2.waitKey(1) == 27:
+    if frame is not None:
+        processed_frame = process_frame(frame)
+        cv2.imshow('video', processed_frame)
+        if cv2.waitKey(1) == 27:
+            break
+    else:
         break
-
 video.release()
 cv2.destroyAllWindows()
