@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import cv2
+import imutils
+
 
 # Load our image
 binary_warped = mpimg.imread('warped-example.jpg')
@@ -93,11 +95,11 @@ def find_lane_pixels(binary_warped):
 
     # HYPERPARAMETERS
     # Choose the number of sliding windows
-    nwindows = 15
+    nwindows = 30
     # Set the width of the windows +/- margin
-    margin = 40
+    margin = 10
     # Set minimum number of pixels found to recenter window
-    minpix = 50
+    minpix = 20
 
     # Set height of windows - based on nwindows above and image shape
     window_height = int(binary_warped.shape[0] // nwindows)
@@ -200,33 +202,39 @@ def fit_polynomial(binary_warped):
     return out_img
 
 
+
+
+
+
+def canny(image):
+    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    blur = cv2.GaussianBlur(gray_image, (5, 5), 0)
+    return imutils.auto_canny(blur, sigma=0.33)  # better way to canny images
+
+
 def process_frame(image):
-    return fit_polynomial(image)
-
-    pass
-    # lines = cv2.HoughLinesP(line_detection.region(line_detection.canny(image)), 10, np.pi / 180, 150, np.array([]), 20, 5)
-    # averaged_lines = line_detection.average_slope_intercept(image, lines)
-    # line_image = line_detection.display_line(image, averaged_lines)
-    # combo_image = cv2.addWeighted(line_image, 1, image, 0.8, 1)
-    # return combo_image
-
-
-# video = cv2.VideoCapture('videos/project_video.mp4')
-# while video.isOpened():
-#     ret, frame = video.read()
-#     if frame is not None:
-#         processed_frame = process_frame(frame)
-#         cv2.imshow('video', processed_frame)
-#         if cv2.waitKey(1) == 27:
-#             break
-#     else:
-#         break
-# video.release()
-# cv2.destroyAllWindows()
+    cropped_img = image[3 * int(image.shape[0] / 5):image.shape[0]]
+    tl, tr, br, bl = [150 + 385, 30], [1050 - 300, 30], [1170, 200], [120, 200]
+    pts1 = np.float32([tl, tr, br, bl])
+    width = int(np.sqrt(((tl[1] - tr[1]) ** 2) + (tl[0] - tr[0]) ** 2))
+    height = int(np.sqrt(((tl[1] - bl[1]) ** 2) + (tl[0] - bl[0]) ** 2))
+    pts2 = np.float32([[0, 0], [width, 0], [width, height], [0, height]])
+    matrix = cv2.getPerspectiveTransform(pts1, pts2)
+    imgOut = cv2.warpPerspective(cropped_img, matrix, (width, height))
+    return canny(imgOut)
 
 
+video = cv2.VideoCapture('videos/project_video.mp4')
 
-out_img = fit_polynomial(binary_warped)
-
-plt.imshow(out_img)
-plt.show()
+while video.isOpened():
+    ret, frame = video.read()
+    if frame is not None:
+        processed_frame = process_frame(frame)
+        out_img = fit_polynomial(processed_frame)
+        cv2.imshow('video', out_img)
+        if cv2.waitKey(45) == 27:
+            break
+    else:
+        break
+video.release()
+cv2.destroyAllWindows()
