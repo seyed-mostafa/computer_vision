@@ -1,3 +1,4 @@
+
 import numpy as np
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
@@ -97,7 +98,7 @@ def find_lane_pixels(binary_warped):
     # Choose the number of sliding windows
     nwindows = 30
     # Set the width of the windows +/- margin
-    margin = 10
+    margin = 15
     # Set minimum number of pixels found to recenter window
     minpix = 20
 
@@ -165,9 +166,9 @@ def find_lane_pixels(binary_warped):
     rightx = nonzerox[right_lane_inds]
     righty = nonzeroy[right_lane_inds]
 
+    # plt.imshow(out_img)
+    # plt.show()
     return leftx, lefty, rightx, righty, out_img
-    plt.imshow(out_img)
-    plt.show()
 
 
 def fit_polynomial(binary_warped):
@@ -182,7 +183,6 @@ def fit_polynomial(binary_warped):
     ploty = np.linspace(0, binary_warped.shape[0] - 1, binary_warped.shape[0])
     try:
         left_fitx = left_fit[0] * ploty ** 2 + left_fit[1] * ploty + left_fit[2]
-        print(left_fitx)
         right_fitx = right_fit[0] * ploty ** 2 + right_fit[1] * ploty + right_fit[2]
     except TypeError:
         # Avoids an error if `left` and `right_fit` are still none or incorrect
@@ -190,14 +190,22 @@ def fit_polynomial(binary_warped):
         left_fitx = 1 * ploty ** 2 + 1 * ploty
         right_fitx = 1 * ploty ** 2 + 1 * ploty
 
+
+    average_line = np.mean(np.array([left_fitx,right_fitx]),axis=0)
+
+
     ## Visualization ##
     # Colors in the left and right lane regions
-    out_img[lefty, leftx] = [0, 0, 255]
-    out_img[righty, rightx] = [0, 0, 255]
+    # out_img[lefty, leftx] = [0, 0, 255]
+    # out_img[righty, rightx] = [0, 0, 255]
 
     # Plots the left and right polynomials on the lane lines
     plt.plot(left_fitx, ploty, color='yellow')
     plt.plot(right_fitx, ploty, color='yellow')
+    plt.plot(average_line, ploty, color='red')
+
+    plt.imshow(out_img)
+    plt.show()
 
     return out_img
 
@@ -232,7 +240,7 @@ while video.isOpened():
         processed_frame = process_frame(frame)
         out_img = fit_polynomial(processed_frame)
         cv2.imshow('video', out_img)
-        if cv2.waitKey(45) == 27:
+        if cv2.waitKey(70) == 27:
             break
     else:
         break
