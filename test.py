@@ -6,29 +6,41 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
-image = cv2.imread("images/test1.jpg")
-image = cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
 
-cropped_img = image[3*int(image.shape[0] /5) :image.shape[0]]
+def process_frame(image):
 
-tl, tr, br, bl = [400+400,50], [1600-400,50],[1600,cropped_img.shape[0]], [400,cropped_img.shape[0]]
-pts1 = np.float32([tl, tr, br, bl])
-print(pts1)
+    cropped_img = image[3 * int(image.shape[0] / 5):image.shape[0]]
 
-width = int(np.sqrt(((tl[1] - tr[1])**2) + (tl[0] - tr[0])**2))
-height = int(np.sqrt(((tl[1] - bl[1])**2) + (tl[0] - bl[0])**2))
+    tl, tr, br, bl = [150 + 385, 30], [1050 - 300, 30], [1170, 200], [120, 200]
+    pts1 = np.float32([tl, tr, br, bl])
 
+    width = int(np.sqrt(((tl[1] - tr[1]) ** 2) + (tl[0] - tr[0]) ** 2))
+    height = int(np.sqrt(((tl[1] - bl[1]) ** 2) + (tl[0] - bl[0]) ** 2))
 
-pts2 = np.float32([[0,0],[width,0],[width,height],[0,height]])
+    pts2 = np.float32([[0, 0], [width, 0], [width, height], [0, height]])
 
-matrix = cv2.getPerspectiveTransform(pts1,pts2)
-imgOut = cv2.warpPerspective(cropped_img,matrix,(width,height))
+    matrix = cv2.getPerspectiveTransform(pts1, pts2)
+    imgOut = cv2.warpPerspective(cropped_img, matrix, (width, height))
 
-cv2.circle(cropped_img, (bl), 25, (255, 0, 0), cv2.FILLED)
+    return imgOut
 
 
-plt.imshow(imgOut)
-plt.show()
+video = cv2.VideoCapture('videos/project_video.mp4')
+
+while video.isOpened():
+    ret, frame = video.read()
+    if frame is not None:
+        processed_frame = process_frame(frame)
+        cv2.imshow('video', processed_frame)
+        if cv2.waitKey(20) == 27:
+            break
+    else:
+        break
+video.release()
+cv2.destroyAllWindows()
+
+
+
 
 
 
