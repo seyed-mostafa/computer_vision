@@ -79,7 +79,8 @@ binary_warped = mpimg.imread('warped-example.jpg')
 
 
 
-
+def out(average_line):
+    pass
 
 
 
@@ -108,9 +109,6 @@ def find_lane_pixels(binary_warped):
     nonzero = binary_warped.nonzero()
     nonzeroy = np.array(nonzero[0])
     nonzerox = np.array(nonzero[1])
-    # print(nonzero)
-    # print(nonzerox)
-    # print(nonzeroy)
 
     # Current positions to be updated later for each window in nwindows
     leftx_current = leftx_base
@@ -166,8 +164,7 @@ def find_lane_pixels(binary_warped):
     rightx = nonzerox[right_lane_inds]
     righty = nonzeroy[right_lane_inds]
 
-    # plt.imshow(out_img)
-    # plt.show()
+
     return leftx, lefty, rightx, righty, out_img
 
 
@@ -194,23 +191,18 @@ def fit_polynomial(binary_warped):
     average_line = np.mean(np.array([left_fitx,right_fitx]),axis=0)
 
 
-    ## Visualization ##
-    # Colors in the left and right lane regions
-    # out_img[lefty, leftx] = [0, 0, 255]
-    # out_img[righty, rightx] = [0, 0, 255]
-
     # Plots the left and right polynomials on the lane lines
     plt.plot(left_fitx, ploty, color='yellow')
     plt.plot(right_fitx, ploty, color='yellow')
     plt.plot(average_line, ploty, color='red')
 
-    plt.imshow(out_img)
-    plt.show()
+    # print(ploty)
+    # plt.imshow(out_img)
+    # plt.show()
 
-    return out_img
-
-
-
+    #return out_img
+    #return average_line
+    return ((left_fitx[-1] + right_fitx[-1]) / 2) * 1280 / 215
 
 
 
@@ -239,10 +231,13 @@ while video.isOpened():
     if frame is not None:
         processed_frame = process_frame(frame)
         out_img = fit_polynomial(processed_frame)
-        cv2.imshow('video', out_img)
-        if cv2.waitKey(70) == 27:
-            break
-    else:
-        break
+        plt.imshow(frame)
+        plt.show()
+
+    #     cv2.imshow('video', out_img)
+    #     if cv2.waitKey(1) == 27:
+    #         break
+    # else:
+    #     break
 video.release()
 cv2.destroyAllWindows()
